@@ -28,17 +28,19 @@ class Executer {
 
 private:
     std::vector<std::vector<std::string>> commands;
-    std::vector<std::string> args;
+    u_int hotKey;
+    bool cycle;
     bool go;
 
 
 public:
-    Executer(std::string file_path) {
+    Executer(std::string file_path,std::string hotKey, std::string cycle) {
         std::fstream file(file_path);
         std::string s;
+        cycle = stoi(cycle);
+        hotKey = stoi(hotKey);
 
         std::getline(file, s);
-        args = parse(s);
 
         while (std::getline(file, s)) {
             commands.push_back(parse(s));
@@ -49,7 +51,7 @@ public:
     void run() {
         std::thread hotkeyListening([&]() {
             while (1) {
-                if (GetAsyncKeyState(std::stoi(args[1])))
+                if (GetAsyncKeyState(hotKey))
                     go = !go;
                 Sleep(100);
             }
@@ -91,7 +93,7 @@ public:
                         Sleep(std::stoi(command[1]));
                     }
                 }
-                if (std::stoi(args[2]) == 0) {
+                if (cycle == 0) {
                     go = false;
                 }
             }
@@ -103,7 +105,7 @@ public:
 int main(int argc, char* argv[])
 {
     std::string path=argv[1];
-    Executer executer(path);
+    Executer executer(path,argv[2],argv[3]);
     executer.run();
 }
 
